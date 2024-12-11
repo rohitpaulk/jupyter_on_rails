@@ -61,12 +61,21 @@ module JupyterOnRails
     end
 
     def setup_console_methods
-      require 'rails/console/app'
-      IRuby::Kernel
-        .instance
-        .instance_variable_get(:@backend)
-        .instance_variable_get(:@main)
-        .extend(Rails::ConsoleMethods)
+      if Rails.version.to_i >= 8
+        require 'rails/command/environment_argument'
+        IRuby::Kernel
+          .instance
+          .instance_variable_get(:@backend)
+          .instance_variable_get(:@main)
+          .extend(Rails::Command::EnvironmentArgument::ConsoleExtension)
+      else
+        require 'rails/console/app'
+        IRuby::Kernel
+          .instance
+          .instance_variable_get(:@backend)
+          .instance_variable_get(:@main)
+          .extend(Rails::ConsoleMethods)
+      end
     end
 
     def setup_sandbox_transaction
